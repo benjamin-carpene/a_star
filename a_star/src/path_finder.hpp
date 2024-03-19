@@ -16,6 +16,10 @@ namespace a_star{
         void setMapSize(Vector2D mapSize){
             mMapSize = mapSize;
         }
+
+        std::vector<Vector2D> getObstacles(){
+            return mObstacles;
+        }
         
         PathFinder& addObstacle(Vector2D obstacle){
             mObstacles.push_back(obstacle);    
@@ -28,6 +32,10 @@ namespace a_star{
             return *this;
         }
 
+        void clearObstacles(){
+            mObstacles.clear();
+        }
+
         bool isInsideObstacle(Vector2D toCheck){
             for(auto obstacleCell : mObstacles){
                 if(obstacleCell == toCheck){
@@ -37,13 +45,13 @@ namespace a_star{
             return false;
         }
 
-        void clearObstacles(){
-            mObstacles.clear();   
-        }
-
-        // TODO : getters for the NodeSets
-
-        auto getFoundPath(){return mFoundPath;}
+        // getters
+        Vector2D getFromPoint(){return mFrom;}
+        Vector2D getToPoint(){return mTo;}
+        NodeSet getOpenSet(){return mOpenSet;}
+        NodeSet getClosedSet(){return mClosedSet;}
+        std::vector<Vector2D> getFoundPath(){return mFoundPath;}
+        
 
         void clearComputationData(){
             mFrom = mTo = Vector2D{};
@@ -66,28 +74,28 @@ namespace a_star{
             mOpenSet.insert(initNode);
 
             while(!mOpenSet.isEmpty()){
-                Node* current = mOpenSet.pop(); // Get the node with the least score and remove it from the open set
+                mCurrentNode = mOpenSet.pop(); // Get the node with the least score and remove it from the open set
                 
                 // If the node is the one we search => we can return
-                if(current->position == mTo){
-                    mFoundPath = current->constructPath();
+                if(mCurrentNode->position == mTo){
+                    mFoundPath = mCurrentNode->constructPath();
                     return true;
                 }
 
                 // checked => add to closed set and see neighbors
-                mClosedSet.insert(current);
-                for(Vector2D neighbor: current->position.getNeighbors(mMapSize)){  
+                mClosedSet.insert(mCurrentNode);
+                for(Vector2D neighbor: mCurrentNode->position.getNeighbors(mMapSize)){  
                     if(isInsideObstacle(neighbor) || mClosedSet.includes(neighbor))
                         continue; 
                     
                     // compute the new scores
-                    uint16_t pahtCost = current->pathCost + 1; // TODO better distance approximation, using float ?
-                    uint16_t heuristicCost = mHeuristic.calc(neighbor, mTo);
-                    uint16_t score = pahtCost + heuristicCost;
+                    float pahtCost = mCurrentNode->pathCost + Vector2D::distance(mCurrentNode->position, neighbor);
+                    float heuristicCost = mHeuristic.calc(neighbor, mTo);
+                    float score = pahtCost + heuristicCost;
 
                     if(!mOpenSet.includes(neighbor)){ 
                         // not inside so we create it
-                        Node* nextNode = new Node(neighbor, current);
+                        Node* nextNode = new Node(neighbor, mCurrentNode);
 
                         nextNode->pathCost = pahtCost;
                         nextNode->heuristicCost = heuristicCost;
@@ -103,7 +111,7 @@ namespace a_star{
                             existingNode->heuristicCost = heuristicCost;
                             existingNode->score = score;
 
-                            existingNode->predecessor = current;
+                            existingNode->predecessor = mCurrentNode;
                         }
                     }        
                 }
@@ -117,7 +125,7 @@ namespace a_star{
         }
 
         void findPath(){
-            
+
         }
 
     private:
@@ -131,6 +139,7 @@ namespace a_star{
         NodeSet mOpenSet;
         NodeSet mClosedSet;
         std::vector<Vector2D> mFoundPath{};
+        Node* mCurrentNode;
     };
     
 }

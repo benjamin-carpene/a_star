@@ -3,6 +3,8 @@
 
 #include "a_star.hpp"
 
+#include <math.h>
+
 int main(){ 
     // pathfinder using EuclidianHeuristic as its policy
     a_star::PathFinder<a_star::heuristics::EuclidianHeuristic> pathFinder;
@@ -18,7 +20,7 @@ int main(){
     
     if(pathFinder.findPath({0,0}, {49, 49}))
         for(auto point : pathFinder.getFoundPath())
-            std::cout << "Path : x y = " << point.x << ' ' << point.y << '\n';
+            std::cout << "Path : x y = " << point.x << ' ' << point.y << '\n';  
 
     return 0;
 }

@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <math.h>
 
 // --------------- Vector2D ---------------
 
@@ -12,6 +13,18 @@ a_star::Vector2D::Vector2D(uint16_t x, uint16_t y):
 bool a_star::Vector2D::operator==(Vector2D other)
 {
     return x == other.x && y == other.y;
+}
+
+float a_star::Vector2D::length()
+{
+    const int sqrt2 = sqrt(2); 
+
+    if(x+y == 1) // one is 1 other is 0
+        return 1;
+    if(x==1 && y==1) // hardcode the value for quick retrieval
+        return sqrt2;
+    else
+        return sqrt(x*x + y*y);   
 }
 
 std::vector<a_star::Vector2D> a_star::Vector2D::getNeighbors(Vector2D mapSize)
@@ -33,6 +46,19 @@ std::vector<a_star::Vector2D> a_star::Vector2D::getNeighbors(Vector2D mapSize)
     }
 
     return container;
+}
+
+a_star::Vector2D a_star::Vector2D::delta(Vector2D a, Vector2D b)
+{
+    return Vector2D(
+        (a.x > b.x) ? (a.x - b.x) : (b.x - a.x),
+        (a.y > b.y) ? (a.y - b.y) : (b.y - a.y)
+    );
+}
+
+float a_star::Vector2D::distance(Vector2D a, Vector2D b)
+{
+    return delta(a, b).length();
 }
 
 // --------------- Node ---------------

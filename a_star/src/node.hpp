@@ -13,8 +13,12 @@ namespace a_star{
         Vector2D() = default;
         Vector2D(uint16_t x, uint16_t y);
         bool operator==(Vector2D other);
+        float length();
         std::vector<Vector2D> getNeighbors(Vector2D mapSize);
 
+        static Vector2D delta(Vector2D a, Vector2D b);
+        static float distance(Vector2D a, Vector2D b);
+        
         uint16_t x{}; 
         uint16_t y{};
     };
@@ -31,9 +35,9 @@ namespace a_star{
         Vector2D position{}; //The position represented by the node
         Node* predecessor{nullptr}; //non owning pointer to previous node 
         
-        uint16_t pathCost{}; // The cost from the beginning to position 
-        uint16_t heuristicCost{}; // The heuristical cost from Vector2D to 
-        uint16_t score{};
+        float pathCost{}; // The cost from the beginning to position 
+        float heuristicCost{}; // The heuristical cost from Vector2D to 
+        float score{};
     };
 
 
