@@ -1,6 +1,5 @@
 #include "node.hpp"
 
-#include <iostream>
 #include <algorithm>
 #include <math.h>
 
@@ -10,21 +9,21 @@ a_star::Vector2D::Vector2D(uint16_t x, uint16_t y):
     x(x), y(y) 
 {}
 
-bool a_star::Vector2D::operator==(Vector2D other)
+bool a_star::Vector2D::operator==(Vector2D other) const
 {
     return x == other.x && y == other.y;
 }
 
 float a_star::Vector2D::length()
 {
-    const int sqrt2 = sqrt(2); 
+    const float sqrt2 = static_cast<float>(sqrt(2));
 
     if(x+y == 1) // one is 1 other is 0
         return 1;
     if(x==1 && y==1) // hardcode the value for quick retrieval
         return sqrt2;
     else
-        return sqrt(x*x + y*y);   
+        return static_cast<float>(sqrt(x*x + y*y));
 }
 
 std::vector<a_star::Vector2D> a_star::Vector2D::getNeighbors(Vector2D mapSize)
@@ -60,6 +59,14 @@ float a_star::Vector2D::distance(Vector2D a, Vector2D b)
 {
     return delta(a, b).length();
 }
+
+size_t a_star::Vector2D::HashFunction::operator()(const Vector2D &vector2d) const
+{
+    size_t xHash = std::hash<int>()(vector2d.x);
+    size_t yHash = std::hash<int>()(vector2d.y) << 1;
+    return xHash ^ yHash;
+}
+
 
 // --------------- Node ---------------
 a_star::Node::Node(Vector2D position, Node* predecessor):
@@ -137,5 +144,6 @@ a_star::NodeSet::~NodeSet()
         delete ptr;
     }
 }
+
 
 

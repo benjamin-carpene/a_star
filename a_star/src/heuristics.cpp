@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-const int sqrt2 = sqrt(2); 
+const float sqrt2 = static_cast<float>(sqrt(2));
 
 float a_star::heuristics::EuclidianHeuristic::calc(Vector2D a, Vector2D b) const
 {
@@ -12,7 +12,7 @@ float a_star::heuristics::EuclidianHeuristic::calc(Vector2D a, Vector2D b) const
 float a_star::heuristics::ManhattanHeuristic::calc(Vector2D a, Vector2D b) const
 {
     auto delta = Vector2D::delta(a, b);
-    return delta.x + delta.y;
+    return static_cast<float>(delta.x + delta.y);
 }
 
 float a_star::heuristics::ChebyshevHeuristic::calc(Vector2D a, Vector2D b) const

@@ -2,8 +2,7 @@
 #define PATH_FINDER_HPP_
 
 #include <vector>
-#include <inttypes.h>
-#include <iostream>
+#include <unordered_set>
 
 #include "node.hpp"
 
@@ -17,18 +16,17 @@ namespace a_star{
             mMapSize = mapSize;
         }
 
-        std::vector<Vector2D> getObstacles(){
+        auto getObstacles(){
             return mObstacles;
         }
         
         PathFinder& addObstacle(Vector2D obstacle){
-            mObstacles.push_back(obstacle);    
+            mObstacles.insert(obstacle);    
             return *this;
         }
     
         PathFinder& addObstacles(std::vector<Vector2D> obstacles){
-            for(auto obstacle : obstacles)
-                mObstacles.push_back(obstacle); 
+            mObstacles.insert(obstacles.begin(), obstacles.end());
             return *this;
         }
 
@@ -37,12 +35,8 @@ namespace a_star{
         }
 
         bool isInsideObstacle(Vector2D toCheck){
-            for(auto obstacleCell : mObstacles){
-                if(obstacleCell == toCheck){
-                    return true;
-                }
-            }
-            return false;
+
+            return mObstacles.find(toCheck) != mObstacles.end();
         }
 
         // getters
@@ -131,8 +125,7 @@ namespace a_star{
     private:
         const HeuristicPolicy mHeuristic{}; // a heuristic callable object
         Vector2D mMapSize{};
-        // TODO refactor for using sets
-        std::vector<Vector2D> mObstacles{}; 
+        std::unordered_set<Vector2D, Vector2D::HashFunction> mObstacles{};
         
         Vector2D mFrom;
         Vector2D mTo;
