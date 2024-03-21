@@ -2,3 +2,4 @@
 build/
 example2.cpp
 *.user
+.cache/

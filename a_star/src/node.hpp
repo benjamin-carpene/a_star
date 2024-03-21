@@ -2,17 +2,24 @@
 #define NODE_HPP_
 
 #include <vector>
+#include <inttypes.h>
 
 namespace a_star{
     
     // Can represent a point or a direction
     struct Vector2D{
+        // Ctors
         Vector2D() = default;
         Vector2D(uint16_t x, uint16_t y);
+
+        // operators
         bool operator==(Vector2D other) const;
+
+        // methods
         float length();
         std::vector<Vector2D> getNeighbors(Vector2D mapSize);
 
+        // static methods
         static Vector2D delta(Vector2D a, Vector2D b);
         static float distance(Vector2D a, Vector2D b);
         
@@ -23,7 +30,7 @@ namespace a_star{
         // hash function for unordered_set
         struct HashFunction
         {
-            size_t operator()(const Vector2D& vector2d) const;
+            std::size_t operator()(const Vector2D& vector2d) const;
         };
 
     };
@@ -33,13 +40,17 @@ namespace a_star{
     struct Node{
         
         Node()=delete;
-        Node(Vector2D position, Node* predecessor);
+        Node(Vector2D position, Node* predecessor = nullptr);
  
         std::vector<Vector2D> constructPath(); 
         
-        Vector2D position{}; //The position represented by the node
-        Node* predecessor{nullptr}; //non owning pointer to previous node 
+        // equality operators (as per their score)
+        bool operator==(const Node& other) const;
+        bool operator<(const Node& other) const;
+        bool operator>(const Node& other) const;
         
+        Vector2D position{}; //The position represented by the node
+        Node* predecessor{nullptr}; //non owning pointer to previous node
         float pathCost{}; // The cost from the beginning to position 
         float heuristicCost{}; // The heuristical cost from Vector2D to 
         float score{};
@@ -63,6 +74,8 @@ namespace a_star{
         // need to know if a coordinate is already in the container
         std::vector<Node*> nodeQueue;
     };
+
+
 }
 
 #endif // NODE_HPP_

@@ -60,10 +60,10 @@ float a_star::Vector2D::distance(Vector2D a, Vector2D b)
     return delta(a, b).length();
 }
 
-size_t a_star::Vector2D::HashFunction::operator()(const Vector2D &vector2d) const
+std::size_t a_star::Vector2D::HashFunction::operator()(const Vector2D &vector2d) const
 {
-    size_t xHash = std::hash<int>()(vector2d.x);
-    size_t yHash = std::hash<int>()(vector2d.y) << 1;
+    std::size_t xHash = std::hash<int>()(vector2d.x);
+    std::size_t yHash = std::hash<int>()(vector2d.y) << 1;
     return xHash ^ yHash;
 }
 
@@ -85,26 +85,43 @@ std::vector<a_star::Vector2D> a_star::Node::constructPath()
     }
     
     //put it back in order
-    std::reverse(container.begin(), container.end()); 
+    std::reverse(container.begin(), container.end());
     return container;
+}
+
+bool a_star::Node::operator==(const Node &other) const
+{
+    return score == other.score;
+}
+
+bool a_star::Node::operator<(const Node &other) const
+{
+    return score < other.score;
+}
+
+bool a_star::Node::operator>(const Node &other) const
+{
+    return score > other.score;
 }
 
 // --------------- NodeSet ---------------
 
-// TODO : change the approach for using std::make_heap etc 
 void a_star::NodeSet::insert(Node *node)
 {
     nodeQueue.push_back(node);
+    // min heap => 'operator >' (as value not ptr)
+    std::push_heap(nodeQueue.begin(), nodeQueue.end(), [](Node* a, Node* b){return *a > *b;});
 }
 
 a_star::Node* a_star::NodeSet::pop()
 {
-    // search for the least value
-    auto minNodeIter = std::min_element(nodeQueue.begin(), nodeQueue.end(), [](Node* a, Node* b){ return a->score < b->score; });
-    Node* minNode = *minNodeIter;
+    if(isEmpty())
+        return nullptr;
 
-    // remove from vector eand returns the value
-    nodeQueue.erase(minNodeIter);
+    std::pop_heap(nodeQueue.begin(), nodeQueue.end(), [](Node* a, Node* b){return *a > *b;});
+    Node* minNode = nodeQueue.back();
+    nodeQueue.pop_back(); // rm the value
+
     return minNode;
 }
 
@@ -135,7 +152,7 @@ a_star::Node* a_star::NodeSet::getNodeFromPosition(Vector2D position)
     if(iter == nodeQueue.end())
         return nullptr;
     else
-        return *iter;    
+        return *iter;
 }
 
 a_star::NodeSet::~NodeSet()
