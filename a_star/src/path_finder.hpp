@@ -1,7 +1,6 @@
 #ifndef PATH_FINDER_HPP_
 #define PATH_FINDER_HPP_
 
-#include <vector>
 #include <unordered_set>
 #include "node.hpp"
 
@@ -10,6 +9,14 @@
 //   Can be used with a single findPath() function call
 
 namespace a_star{
+    struct Snapshot{ // an "image" of the current state of the PathFinder
+        Vector2D size;
+        Vector2D from;
+        Vector2D to;
+        PointSet obstacles;
+        PointSet seenNodes;
+        PointSet currentPath;
+    };
 
     template<typename HeuristicPolicy>
     class PathFinder{
@@ -19,16 +26,17 @@ namespace a_star{
             mMapSize = mapSize;
         }
 
-        auto getObstacles()const {
-            return mObstacles;
+        PointSet getObstacles()const {
+            PointSet vec(mObstacles.begin(), mObstacles.end());
+            return vec;
         }
         
         PathFinder& addObstacle(Vector2D obstacle){
             mObstacles.insert(obstacle);    
             return *this;
         }
-    
-        PathFinder& addObstacles(std::vector<Vector2D> obstacles){
+
+        PathFinder& addObstacles(PointSet obstacles){
             mObstacles.insert(obstacles.begin(), obstacles.end());
             return *this;
         }
@@ -45,9 +53,21 @@ namespace a_star{
         bool isSuccessfull()const{return mSuccess;};
         Vector2D getFromPoint()const{return mFrom;}
         Vector2D getToPoint()const{return mTo;}
-        NodeSet getOpenSet()const{return mOpenSet;}
-        NodeSet getClosedSet()const{return mClosedSet;}
-        std::vector<Vector2D> getFoundPath()const{return mFoundPath;}
+        Vector2D getMapSize() const{return mMapSize;};
+
+        PointSet getOpenSet(){
+            PointSet vec;
+            for(auto elt: mOpenSet)
+                vec.push_back(elt->position);
+            return vec;
+        }
+        PointSet getClosedSet(){
+            PointSet vec;
+            for(auto elt: mClosedSet)
+                vec.push_back(elt->position);
+            return vec;
+        }
+        PointSet getFoundPath()const{return mFoundPath;}
         
 
         void clearComputationData(){
@@ -139,6 +159,18 @@ namespace a_star{
             return mSuccess;
         }
 
+        Snapshot computeSnapShot(){
+            Snapshot snap{
+                .size = getMapSize(),
+                .from = getFromPoint(),
+                .to = getToPoint(),
+                .obstacles = getObstacles(),
+                .seenNodes = getClosedSet(),
+            };
+            snap.currentPath = mSuccess ? getFoundPath() : mCurrentNode->constructPath();
+            return snap;
+        }
+
     private:
         const HeuristicPolicy mHeuristic{}; // a heuristic callable object
         Vector2D mMapSize{};
@@ -148,7 +180,7 @@ namespace a_star{
         Vector2D mTo;
         NodeSet mOpenSet;
         NodeSet mClosedSet;
-        std::vector<Vector2D> mFoundPath{};
+        PointSet mFoundPath{};
         Node* mCurrentNode;
 
         bool mSuccess{false};

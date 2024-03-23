@@ -3,10 +3,12 @@
 
 #include <vector>
 #include <inttypes.h>
+#include <string>
 
 namespace a_star{
-    
+
     // Can represent a point or a direction
+    
     struct Vector2D{
         // Ctors
         Vector2D() = default;
@@ -14,6 +16,7 @@ namespace a_star{
 
         // operators
         bool operator==(Vector2D other) const;
+        operator std::string() const;
 
         // methods
         float length();
@@ -34,7 +37,7 @@ namespace a_star{
         };
 
     };
-
+    using PointSet = std::vector<Vector2D>;
 
     // For the linked list of elements 
     struct Node{
@@ -42,7 +45,7 @@ namespace a_star{
         Node()=delete;
         Node(Vector2D position, Node* predecessor = nullptr);
  
-        std::vector<Vector2D> constructPath(); 
+        PointSet constructPath();
         
         // equality operators (as per their score)
         bool operator==(const Node& other) const;
@@ -69,10 +72,14 @@ namespace a_star{
         bool includes(Vector2D position);
         Node* getNodeFromPosition(Vector2D position);
 
+        using const_iterator = std::vector<Node*>::const_iterator;
+        const_iterator begin() const;
+        const_iterator end() const;
+
     private:
         // we use a vector with the std heap functions because we also 
         // need to know if a coordinate is already in the container
-        std::vector<Node*> nodeQueue;
+        std::vector<Node*> mNodeQueue;
     };
 
 

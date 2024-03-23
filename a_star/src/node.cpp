@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <math.h>
+#include <sstream>
 
 // --------------- Vector2D ---------------
 
@@ -12,6 +13,13 @@ a_star::Vector2D::Vector2D(uint16_t x, uint16_t y):
 bool a_star::Vector2D::operator==(Vector2D other) const
 {
     return x == other.x && y == other.y;
+}
+
+a_star::Vector2D::operator std::string() const
+{
+    std::stringstream ss;
+    ss << "{" << x << ", " << y << "}";
+    return ss.str();
 }
 
 float a_star::Vector2D::length()
@@ -26,9 +34,9 @@ float a_star::Vector2D::length()
         return static_cast<float>(sqrt(x*x + y*y));
 }
 
-std::vector<a_star::Vector2D> a_star::Vector2D::getNeighbors(Vector2D mapSize)
+a_star::PointSet a_star::Vector2D::getNeighbors(Vector2D mapSize)
 {
-    std::vector<Vector2D> container;
+    PointSet container;
     container.reserve(8);
 
     for(int8_t i : {-1, 0, 1} ){
@@ -73,9 +81,9 @@ a_star::Node::Node(Vector2D position, Node* predecessor):
     position(position), predecessor(predecessor)
 {}
 
-std::vector<a_star::Vector2D> a_star::Node::constructPath()
+a_star::PointSet a_star::Node::constructPath()
 {
-    std::vector<Vector2D> container;
+    PointSet container;
     container.reserve(50); // default
     
     auto currNode = this;
@@ -108,34 +116,34 @@ bool a_star::Node::operator>(const Node &other) const
 
 void a_star::NodeSet::insert(Node *node)
 {
-    nodeQueue.push_back(node);
+    mNodeQueue.push_back(node);
     // min heap => 'operator >' (as value not ptr)
-    std::push_heap(nodeQueue.begin(), nodeQueue.end(), [](Node* a, Node* b){return *a > *b;});
+    std::push_heap(mNodeQueue.begin(), mNodeQueue.end(), [](Node* a, Node* b){return *a > *b;});
 }
 
 a_star::Node* a_star::NodeSet::pop()
 {
     if(isEmpty())
         return nullptr;
-
-    std::pop_heap(nodeQueue.begin(), nodeQueue.end(), [](Node* a, Node* b){return *a > *b;});
-    Node* minNode = nodeQueue.back();
-    nodeQueue.pop_back(); // rm the value
+    
+    std::pop_heap(mNodeQueue.begin(), mNodeQueue.end(), [](Node* a, Node* b){return *a > *b;});
+    Node* minNode = mNodeQueue.back();
+    mNodeQueue.pop_back(); // rm the value
 
     return minNode;
 }
 
 void a_star::NodeSet::clear()
 {
-    for(auto ptr: nodeQueue){
+    for(auto ptr: mNodeQueue){
         delete ptr;
     }
-    nodeQueue.clear();
+    mNodeQueue.clear();
 }
 
 bool a_star::NodeSet::isEmpty()
 {
-    return nodeQueue.empty();
+    return mNodeQueue.empty();
 }
 
 bool a_star::NodeSet::includes(Vector2D position)
@@ -148,16 +156,26 @@ a_star::Node* a_star::NodeSet::getNodeFromPosition(Vector2D position)
     auto pred = [position](Node* a){
         return a->position == position;
     };
-    auto iter = std::find_if(nodeQueue.begin(), nodeQueue.end(), pred);
-    if(iter == nodeQueue.end())
+    auto iter = std::find_if(mNodeQueue.begin(), mNodeQueue.end(), pred);
+    if(iter == mNodeQueue.end())
         return nullptr;
     else
         return *iter;
 }
 
+a_star::NodeSet::const_iterator a_star::NodeSet::begin() const
+{
+    return mNodeQueue.begin();
+}
+
+a_star::NodeSet::const_iterator a_star::NodeSet::end() const
+{
+    return mNodeQueue.end();
+}
+
 a_star::NodeSet::~NodeSet()
 {
-    for(auto ptr: nodeQueue){
+    for(auto ptr: mNodeQueue){
         delete ptr;
     }
 }
