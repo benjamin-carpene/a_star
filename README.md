@@ -2,7 +2,7 @@
 A C++ implementation of A\*.
 You can choose the heuristics that the algorithm uses by using the C++ policy idiom.
 
-**Euclian heuristic.**
+**Euclidian heuristic.**
 
 ![euclidian example](examples/euclidian.gif)
 
