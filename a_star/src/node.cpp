@@ -22,7 +22,7 @@ a_star::Vector2D::operator std::string() const
     return ss.str();
 }
 
-float a_star::Vector2D::length()
+float a_star::Vector2D::length() const
 {
     const float sqrt2 = static_cast<float>(sqrt(2));
 
@@ -34,21 +34,25 @@ float a_star::Vector2D::length()
         return static_cast<float>(sqrt(x*x + y*y));
 }
 
-a_star::PointSet a_star::Vector2D::getNeighbors(Vector2D mapSize)
+a_star::PointSet a_star::Vector2D::getNeighbors(Vector2D mapSize, bool diagonals) const
 {
     PointSet container;
     container.reserve(8);
 
     for(int8_t i : {-1, 0, 1} ){
         for(int8_t j : {-1, 0, 1}){
-            if(i == 0 && j == 0)
-                continue; // isnt a neighbor
-            
             uint16_t currX = x+i;
             uint16_t currY = y+j;
 
-            if( currX < mapSize.x && currY < mapSize.y ) // no need to compare >= 0 because uint
-                container.push_back({currX, currY});
+            if( currX < mapSize.x && currY < mapSize.y ) {
+                uint16_t sum = i+j;
+                if(sum == 1){
+                    container.push_back({currX, currY});
+                }else if(sum == 2 && diagonals){
+                    container.push_back({currX, currY});
+                }
+                //else 0 : not a neighbor
+            }
         }
     }
 
@@ -81,7 +85,7 @@ a_star::Node::Node(Vector2D position, Node* predecessor):
     position(position), predecessor(predecessor)
 {}
 
-a_star::PointSet a_star::Node::constructPath()
+a_star::PointSet a_star::Node::constructPath() const
 {
     PointSet container;
     container.reserve(50); // default
@@ -141,22 +145,23 @@ void a_star::NodeSet::clear()
     mNodeQueue.clear();
 }
 
-bool a_star::NodeSet::isEmpty()
+bool a_star::NodeSet::isEmpty() const
 {
     return mNodeQueue.empty();
 }
 
-bool a_star::NodeSet::includes(Vector2D position)
+bool a_star::NodeSet::includes(Vector2D position) const
 {
     return static_cast<bool>(getNodeFromPosition(position));
 }
 
-a_star::Node* a_star::NodeSet::getNodeFromPosition(Vector2D position)
+a_star::Node* a_star::NodeSet::getNodeFromPosition(Vector2D position) const
 {
     auto pred = [position](Node* a){
         return a->position == position;
     };
     auto iter = std::find_if(mNodeQueue.begin(), mNodeQueue.end(), pred);
+
     if(iter == mNodeQueue.end())
         return nullptr;
     else

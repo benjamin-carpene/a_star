@@ -24,6 +24,7 @@ You can choose the heuristics that the algorithm uses by using the C++ policy id
 a_star::PathFinder<a_star::heuristics::EuclidianHeuristic> pathFinder;
 
 // 2. Set environment data
+pathFinder.enableDiagonal();
 pathFinder.setMapSize({50, 50});
 pathFinder
     .addObstacle({10,20})

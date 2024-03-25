@@ -19,8 +19,8 @@ namespace a_star{
         operator std::string() const;
 
         // methods
-        float length();
-        std::vector<Vector2D> getNeighbors(Vector2D mapSize);
+        float length() const;
+        std::vector<Vector2D> getNeighbors(Vector2D mapSize, bool diagonals) const;
 
         // static methods
         static Vector2D delta(Vector2D a, Vector2D b);
@@ -45,7 +45,7 @@ namespace a_star{
         Node()=delete;
         Node(Vector2D position, Node* predecessor = nullptr);
  
-        PointSet constructPath();
+        PointSet constructPath() const;
         
         // equality operators (as per their score)
         bool operator==(const Node& other) const;
@@ -68,9 +68,9 @@ namespace a_star{
         void insert(Node* node);
         Node* pop();
         void clear();
-        bool isEmpty();
-        bool includes(Vector2D position);
-        Node* getNodeFromPosition(Vector2D position);
+        bool isEmpty() const;
+        bool includes(Vector2D position) const;
+        Node* getNodeFromPosition(Vector2D position) const;
 
         using const_iterator = std::vector<Node*>::const_iterator;
         const_iterator begin() const;

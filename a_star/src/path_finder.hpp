@@ -18,42 +18,65 @@ namespace a_star{
         PointSet currentPath;
     };
 
+    enum class State{
+        unstarted,
+        started,
+        finished
+    };
+
     template<typename HeuristicPolicy>
     class PathFinder{
     public:
         // Environment functions
         void setMapSize(Vector2D mapSize){
             mMapSize = mapSize;
+            mState = State::unstarted; // environment changed => algo must be re run
+        }
+       
+        PathFinder& addObstacle(Vector2D obstacle){
+            mObstacles.insert(obstacle);    
+            mState = State::unstarted;
+            return *this;
+        }
+
+        PathFinder& addObstacles(const PointSet& obstacles){
+            mObstacles.insert(obstacles.begin(), obstacles.end());
+            mState = State::unstarted;
+            return *this;
+        }
+
+        void clearObstacles(){
+            mObstacles.clear();
+            mState = State::unstarted;
         }
 
         PointSet getObstacles()const {
             PointSet vec(mObstacles.begin(), mObstacles.end());
             return vec;
         }
-        
-        PathFinder& addObstacle(Vector2D obstacle){
-            mObstacles.insert(obstacle);    
-            return *this;
-        }
-
-        PathFinder& addObstacles(PointSet obstacles){
-            mObstacles.insert(obstacles.begin(), obstacles.end());
-            return *this;
-        }
-
-        void clearObstacles(){
-            mObstacles.clear();
-        }
 
         bool isInsideObstacle(Vector2D toCheck) const{
             return mObstacles.find(toCheck) != mObstacles.end();
         }
 
-        // getters
+        void enableDiagonal(){
+            mDiagonalEnabled = true;
+            mState = State::unstarted;
+        }
+        void disableDiagonal(){
+            mDiagonalEnabled = false;
+            mState = State::unstarted;
+        }
+        bool isDiagonalEnabled() const {
+            return mDiagonalEnabled;
+        }
+        
+        // simples getters & setters
         bool isSuccessfull()const{return mSuccess;};
         Vector2D getFromPoint()const{return mFrom;}
         Vector2D getToPoint()const{return mTo;}
         Vector2D getMapSize() const{return mMapSize;};
+        State getState(){return mState;}
 
         PointSet getOpenSet(){
             PointSet vec;
@@ -69,9 +92,9 @@ namespace a_star{
         }
         PointSet getFoundPath()const{return mFoundPath;}
         
-
         void clearComputationData(){
-            mFrom = mTo = Vector2D{};
+            mState = State::unstarted;
+            mSuccess = false;
             mOpenSet.clear();
             mClosedSet.clear();
             mFoundPath.clear();
@@ -81,15 +104,14 @@ namespace a_star{
             // Validation of from and to
             if( mFrom.x < 0 || mFrom.y < 0
                 || mFrom.x >= mMapSize.x || mFrom.y >= mMapSize.y){
-                return false;
+                return false; //do nothing
             }
 
             // initialisation of variables
-            mSuccess = false;
+            clearComputationData();
+            mState = State::started;
             mFrom = from;
             mTo = to;
-            mOpenSet.clear();
-            mClosedSet.clear();
 
             // initialisation of the openSet
             Node* initNode = new Node(mFrom, nullptr);
@@ -99,21 +121,26 @@ namespace a_star{
         }
 
         bool step(){
+            if(mState != State::started)
+                return false; //dont compute
+
             mCurrentNode = mOpenSet.pop(); // Get the node with the least score and remove it from the open set
             if(!mCurrentNode){
                 mSuccess = false; // There is no node in open set : no path found
+                mState = State::finished;
                 return false; // algo finished failure
             }
             // If the node is the one we search => we can return
             if(mCurrentNode->position == mTo){
                 mFoundPath = mCurrentNode->constructPath();
                 mSuccess = true;
-                return false; // Algo finished NO next step
+                mState = State::finished;
+                return false; // Algo finished NO next step()
             }
 
             // checked => add to closed set and see neighbors
             mClosedSet.insert(mCurrentNode);
-            for(Vector2D neighbor: mCurrentNode->position.getNeighbors(mMapSize)){
+            for(Vector2D neighbor: mCurrentNode->position.getNeighbors(mMapSize, mDiagonalEnabled)){
                 if(isInsideObstacle(neighbor) || mClosedSet.includes(neighbor))
                     continue;
 
@@ -183,7 +210,9 @@ namespace a_star{
         PointSet mFoundPath{};
         Node* mCurrentNode;
 
+        State mState{State::unstarted};
         bool mSuccess{false};
+        bool mDiagonalEnabled{true};
     };
 }
 
