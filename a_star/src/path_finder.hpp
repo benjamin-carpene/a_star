@@ -27,30 +27,37 @@ namespace a_star{
     template<typename HeuristicPolicy>
     class PathFinder{
     public:
+        PathFinder() = default;
+        PathFinder(Vector2D mapSize):mMapSize{mapSize} {};
+
         // Environment functions
         void setMapSize(Vector2D mapSize){
             mMapSize = mapSize;
-            mState = State::unstarted; // environment changed => algo must be re run
+            reinitialize(); // environment changed => algo must be re run
         }
        
         PathFinder& addObstacle(Vector2D obstacle){
             mObstacles.insert(obstacle);    
-            mState = State::unstarted;
+            reinitialize();
             return *this;
         }
 
         PathFinder& addObstacles(const PointSet& obstacles){
             mObstacles.insert(obstacles.begin(), obstacles.end());
-            mState = State::unstarted;
+            reinitialize();
             return *this;
+        }
+
+        void removeObstacle(Vector2D obstacle){
+            mObstacles.erase(obstacle);
         }
 
         void clearObstacles(){
             mObstacles.clear();
-            mState = State::unstarted;
+            reinitialize();
         }
 
-        PointSet getObstacles()const {
+        PointSet getObstacles() const {
             PointSet vec(mObstacles.begin(), mObstacles.end());
             return vec;
         }
@@ -61,11 +68,11 @@ namespace a_star{
 
         void enableDiagonal(){
             mDiagonalEnabled = true;
-            mState = State::unstarted;
+            reinitialize();
         }
         void disableDiagonal(){
             mDiagonalEnabled = false;
-            mState = State::unstarted;
+            reinitialize();
         }
         bool isDiagonalEnabled() const {
             return mDiagonalEnabled;
@@ -74,9 +81,19 @@ namespace a_star{
         // simples getters & setters
         bool isSuccessfull()const{return mSuccess;};
         Vector2D getFromPoint()const{return mFrom;}
-        Vector2D getToPoint()const{return mTo;}
+
+        void setFromPoint(Vector2D p){
+            mFrom = p;
+            reinitialize();
+        }
+        void setToPoint(Vector2D p){
+            mTo= p;
+            reinitialize();
+        }
+
+        Vector2D getToPoint() const{return mTo;}
         Vector2D getMapSize() const{return mMapSize;};
-        State getState(){return mState;}
+        const State& getState() const{return mState;}
 
         PointSet getOpenSet(){
             PointSet vec;
@@ -84,15 +101,15 @@ namespace a_star{
                 vec.push_back(elt->position);
             return vec;
         }
-        PointSet getClosedSet(){
+        PointSet getClosedSet() const{
             PointSet vec;
             for(auto elt: mClosedSet)
                 vec.push_back(elt->position);
             return vec;
         }
-        PointSet getFoundPath()const{return mFoundPath;}
+        PointSet getFoundPath() const{return mFoundPath;}
         
-        void clearComputationData(){
+        void reinitialize(){
             mState = State::unstarted;
             mSuccess = false;
             mOpenSet.clear();
@@ -108,7 +125,7 @@ namespace a_star{
             }
 
             // initialisation of variables
-            clearComputationData();
+            reinitialize();
             mState = State::started;
             mFrom = from;
             mTo = to;
@@ -186,7 +203,7 @@ namespace a_star{
             return mSuccess;
         }
 
-        Snapshot computeSnapShot(){
+        Snapshot computeSnapShot() const {
             Snapshot snap{
                 .size = getMapSize(),
                 .from = getFromPoint(),
