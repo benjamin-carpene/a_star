@@ -112,6 +112,7 @@ namespace a_star{
         void reinitialize(){
             mState = State::unstarted;
             mSuccess = false;
+            mCurrentNode = nullptr;
             mOpenSet.clear();
             mClosedSet.clear();
             mFoundPath.clear();
