@@ -41,17 +41,16 @@ a_star::PointSet a_star::Vector2D::getNeighbors(Vector2D mapSize, bool diagonals
 
     for(int8_t i : {-1, 0, 1} ){
         for(int8_t j : {-1, 0, 1}){
-            uint16_t currX = x+i;
-            uint16_t currY = y+j;
+            if(i != 0 || j != 0) {
+                uint16_t currX = x + i;
+                uint16_t currY = y + j;
 
-            if( currX < mapSize.x && currY < mapSize.y ) {
-                uint16_t sum = i+j;
-                if(sum == 1){
-                    container.push_back({currX, currY});
-                }else if(sum == 2 && diagonals){
+                if(currX < mapSize.x && currY < mapSize.y) { //points inside map
+                    if(!diagonals && (i != 0 && j != 0)) {
+                        continue; // Skip diagonals if needed
+                    }
                     container.push_back({currX, currY});
                 }
-                //else 0 : not a neighbor
             }
         }
     }
