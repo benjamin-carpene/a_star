@@ -2,6 +2,10 @@
 A C++ implementation of A\*.
 You can choose the heuristics that the algorithm uses by using the C++ policy idiom.
 
+# Policy version
+You are on the `policy` branch of this Git repository. This is the initial implementation of the project. For performance reasons, it avoids the use of polymorphism, which can be slower. 
+For the polymorphic version, switch to the `main` branch, which is now the default and can be easily used with my other projects (cf. `main` branch).
+
 **Euclidian heuristic.**
 
 ![euclidian example](examples/euclidian.gif)
