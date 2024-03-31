@@ -1,10 +1,13 @@
+#include <memory>
 #include <iostream>
 #include <string>
 #include "a_star.hpp"
 
 int main(){
     // 1. Construct the PathFinder object using a given Heuristic as policy
-    a_star::PathFinder<a_star::heuristics::EuclidianHeuristic> pathFinder;
+    a_star::PathFinder pathFinder;
+    auto chosenHeuristic = std::make_unique<a_star::heuristics::EuclidianHeuristic>();
+    pathFinder.setHeuristic(std::move(chosenHeuristic));
 
     // 2. Set environment data
     pathFinder.enableDiagonal();

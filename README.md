@@ -2,6 +2,10 @@
 A C++ implementation of A\*.
 You can choose the heuristics that the algorithm uses by using the C++ policy idiom.
 
+# Polymorphic version
+You are on the polymorphic version of this repository. There's also a policy based version of it (branch `policy`).
+This project has a sibling project, `a_star_viewer_qt`, which is written in C++/Qt and offers a simple GUI to configure and visualize the algorithm's steps and results. You can find this repository in my github profile.
+
 **Euclidian heuristic.**
 
 ![euclidian example](examples/euclidian.gif)
@@ -20,8 +24,10 @@ You can choose the heuristics that the algorithm uses by using the C++ policy id
 
 ### Simple use case - call the algorithm 
 ```CPP
-// 1. Construct the PathFinder object using a given Heuristic as policy
-a_star::PathFinder<a_star::heuristics::EuclidianHeuristic> pathFinder;
+// 1. Construct the PathFinder and set its heuristic
+a_star::PathFinder pathFinder;
+auto chosenHeuristic = std::make_unique<a_star::heuristics::EuclidianHeuristic>();
+pathFinder.setHeuristic(std::move(chosenHeuristic));
 
 // 2. Set environment data
 pathFinder.enableDiagonal();
