@@ -188,12 +188,13 @@ bool a_star::PathFinder::findPath(Vector2D from, Vector2D to){
 
 a_star::Snapshot a_star::PathFinder::computeSnapShot() const {
     Snapshot snap{
-        .size = getMapSize(),
-        .from = getFromPoint(),
-        .to = getToPoint(),
-        .obstacles = getObstacles(),
-        .seenNodes = getClosedSet(),
+        getMapSize(),
+        getFromPoint(),
+        getToPoint(),
+        getObstacles(),
+        getClosedSet()
     };
+
     snap.currentPath = mSuccess ? getFoundPath() : mCurrentNode->constructPath();
     return snap;
 }
