@@ -28,7 +28,7 @@ namespace a_star{
     class PathFinder{
     public:
         PathFinder() = default;
-        PathFinder(Vector2D mapSize):mMapSize{mapSize} {};
+        PathFinder(Vector2D mapSize):mMapSize{mapSize} {}
 
         // Environment functions
         void setMapSize(Vector2D mapSize){
@@ -118,24 +118,28 @@ namespace a_star{
             mFoundPath.clear();
         }
 
-        bool init(Vector2D from, Vector2D to){
-            // Validation of from and to
-            if( mFrom.x < 0 || mFrom.y < 0
-                || mFrom.x >= mMapSize.x || mFrom.y >= mMapSize.y){
-                return false; //do nothing
-            }
-
-            // initialisation of variables
+        bool init(){
             reinitialize();
             mState = State::started;
+            Node* initNode = new Node(mFrom, nullptr);
+            mOpenSet.insert(initNode);
+            return true;
+        }
+
+        bool init(Vector2D from, Vector2D to){
+            // Validation of from and to
+            if( 
+                mFrom.x < 0 || mFrom.y < 0 || mFrom.x >= mMapSize.x || mFrom.y >= mMapSize.y 
+                || mTo.x < 0 || mTo.y < 0 || mTo.x >= mMapSize.x || mTo.y >= mMapSize.y
+            ){
+                return false; //do nothing
+                mState = State::finished;
+            }
+            // initialisation of variables
             mFrom = from;
             mTo = to;
 
-            // initialisation of the openSet
-            Node* initNode = new Node(mFrom, nullptr);
-            mOpenSet.insert(initNode);
-
-            return true;
+            return init();
         }
 
         bool step(){

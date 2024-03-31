@@ -6,25 +6,24 @@
 namespace a_star::heuristics{      
 
     // An Interface for the heuristic policies, uses the C++ policy design pattern
-    struct HeuristicPolicyInterface{
-        HeuristicPolicyInterface() = default;
+    struct HeuristicInterface{
         virtual float calc(Vector2D a, Vector2D b) const = 0;
+        virtual ~HeuristicInterface(){}
     };
 
-
-    struct EuclidianHeuristic : public HeuristicPolicyInterface{
+    struct EuclidianHeuristic : public HeuristicInterface{
         float calc(Vector2D a, Vector2D b) const override;
     };
 
-    struct ManhattanHeuristic : public HeuristicPolicyInterface{
+    struct ManhattanHeuristic : public HeuristicInterface{
         float calc(Vector2D a, Vector2D b) const override;
     };
 
-    struct ChebyshevHeuristic : public HeuristicPolicyInterface{
+    struct ChebyshevHeuristic : public HeuristicInterface{
         float calc(Vector2D a, Vector2D b) const override;
     };
 
-    struct OctileHeuristic : public HeuristicPolicyInterface{
+    struct OctileHeuristic : public HeuristicInterface{
         float calc(Vector2D a, Vector2D b) const override;
     };
 }
